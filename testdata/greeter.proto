@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package demo_service;
+package DemoService;
 
 service Greeter {
   // Unary RPCs example
