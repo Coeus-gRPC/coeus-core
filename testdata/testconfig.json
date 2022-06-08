@@ -1,0 +1,8 @@
+{
+  "totalCallNum": 10,
+  "concurrent": 2,
+  "targetHost": "localhost:8080",
+  "insecure": true,
+  "protoFile": "./greeter.proto",
+  "methodName": "demo_service.Greeter.SayHello"
+}
