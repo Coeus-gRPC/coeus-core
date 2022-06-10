@@ -10,7 +10,7 @@ import (
 
 var (
 	configFile string
-	config     app.CoeusConfig //{Insecure: true}
+	config     = app.CoeusConfig{TotalCallNum: 1, Concurrent: 1, Insecure: true, TargetHost: "localhost:8080"}
 )
 
 func Execute() {
