@@ -3,6 +3,6 @@
   "concurrent": 2,
   "targetHost": "localhost:8080",
   "insecure": true,
-  "protoFile": "./greeter.proto",
+  "protoFile": "./testdata/greeter.proto",
   "methodName": "DemoService.Greeter.SayHello"
 }

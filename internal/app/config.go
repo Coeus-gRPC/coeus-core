@@ -25,7 +25,18 @@ func LoadConfigFromFile(path *string, config *CoeusConfig) error {
 	if err != nil {
 		return helper.ErrConfigReadFailed
 	}
-	println(config.Insecure)
+
+	protobufPath := config.ProtoFile
+	fileDes, err := ParseProtobufFile(protobufPath)
+	if err != nil {
+		return helper.ErrProtobufParseFailed(protobufPath)
+	}
+
+	methodName := config.MethodName
+	err = CheckProtobufMethod(fileDes, methodName)
+	if err != nil {
+		return helper.ErrProtobufMethodNotExist(methodName)
+	}
 
 	return nil
 }

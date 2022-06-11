@@ -29,7 +29,7 @@ var rootCmd = &cobra.Command{
 		return app.LoadConfigFromFile(&configFile, &config)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		println("Place Holder")
+		println("Pre-run success!")
 	},
 }
 
@@ -39,7 +39,6 @@ func init() {
 	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "", "path to the coeus config file")
-
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
