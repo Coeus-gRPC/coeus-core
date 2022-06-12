@@ -4,5 +4,6 @@
   "targetHost": "localhost:8080",
   "insecure": true,
   "protoFile": "./testdata/greeter.proto",
-  "methodName": "DemoService.Greeter.SayHello"
+  "methodName": "DemoService.Greeter.SayHello",
+  "messageDataFile": "./testdata/messageData.json"
 }

@@ -3,19 +3,25 @@ package app
 import (
 	"Coeus/internal/helper"
 	"encoding/json"
+	"github.com/jhump/protoreflect/desc"
 	"os"
 )
 
-type CoeusConfig struct {
-	TotalCallNum uint   `json:"totalCallNum"`
-	Concurrent   int    `json:"concurrent"`
-	TargetHost   string `json:"targetHost"`
-	Insecure     bool   `json:"insecure"`
-	ProtoFile    string `json:"protoFile"`
-	MethodName   string `json:"methodName"`
+type CoeusRuntimeConfig struct {
+	MethodDesc *desc.MethodDescriptor
 }
 
-func LoadConfigFromFile(path *string, config *CoeusConfig) error {
+type CoeusConfig struct {
+	TotalCallNum    uint   `json:"totalCallNum"`
+	Concurrent      int    `json:"concurrent"`
+	TargetHost      string `json:"targetHost"`
+	Insecure        bool   `json:"insecure"`
+	ProtoFile       string `json:"protoFile"`
+	MethodName      string `json:"methodName"`
+	MessageDataFile string `json:"messageDataFile"`
+}
+
+func LoadConfigFromFile(path *string, config *CoeusConfig, runtimeConfig *CoeusRuntimeConfig) error {
 	jsonConfig, err := os.ReadFile(*path)
 	if err != nil {
 		return helper.ErrConfigLoadFailed(path)
@@ -33,10 +39,12 @@ func LoadConfigFromFile(path *string, config *CoeusConfig) error {
 	}
 
 	methodName := config.MethodName
-	err = CheckProtobufMethod(fileDes, methodName)
+	methodDes, err := CheckProtobufMethod(fileDes, methodName)
 	if err != nil {
 		return helper.ErrProtobufMethodNotExist(methodName)
 	}
+
+	runtimeConfig.MethodDesc = methodDes
 
 	return nil
 }
