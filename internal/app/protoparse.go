@@ -32,11 +32,11 @@ func ParseProtobufFile(path string) (*desc.FileDescriptor, error) {
 	return fileDesc[0], nil
 }
 
-func CheckProtobufMethod(fileDesc *desc.FileDescriptor, methodName string) error {
+func CheckProtobufMethod(fileDesc *desc.FileDescriptor, methodName string) (*desc.MethodDescriptor, error) {
 	// First, parse method to find service name and method name individually
 	serviceStr, methodStr, err := parseMethodName(methodName)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Then, find the corresponding (service) descriptor
@@ -48,10 +48,10 @@ func CheckProtobufMethod(fileDesc *desc.FileDescriptor, methodName string) error
 
 	methodDes := serviceDes.FindMethodByName(methodStr)
 	if methodDes == nil {
-		return helper.ErrProtobufMethodNotExist(methodStr)
+		return nil, helper.ErrProtobufMethodNotExist(methodStr)
 	}
 
-	return nil
+	return methodDes, nil
 }
 
 // parseMethodName parses the full method name into Package+Service and Method Name

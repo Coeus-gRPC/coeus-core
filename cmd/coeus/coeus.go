@@ -9,8 +9,9 @@ import (
 )
 
 var (
-	configFile string
-	config     = app.CoeusConfig{TotalCallNum: 1, Concurrent: 1, Insecure: true, TargetHost: "localhost:8080"}
+	configFile    string
+	config        = app.CoeusConfig{TotalCallNum: 1, Concurrent: 1, Insecure: true, TargetHost: "localhost:8080"}
+	runtimeConfig = app.CoeusRuntimeConfig{}
 )
 
 func Execute() {
@@ -26,10 +27,11 @@ var rootCmd = &cobra.Command{
 	Short:   "Coeus is a commandline tool to help you benchmark gRPC methods",
 	Example: "coeus --config ./testdata/testconfig.json",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return app.LoadConfigFromFile(&configFile, &config)
+		return app.LoadConfigFromFile(&configFile, &config, &runtimeConfig)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		println("Pre-run success!")
+		caller := app.NewCaller(&runtimeConfig)
+		caller.Run()
 	},
 }
 
