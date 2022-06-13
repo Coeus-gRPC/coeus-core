@@ -27,6 +27,10 @@ func ErrProtobufParseFailed(fileName string) error {
 	}
 }
 
+func ErrProtobufServiceNotExist(serviceName string) error {
+	return errors.New(fmt.Sprintf("provided service: `%s` does not exist in protobuf file", serviceName))
+}
+
 func ErrProtobufMethodNotExist(methodName string) error {
 	return errors.New(fmt.Sprintf("provided method: `%s` does not exist in protobuf file", methodName))
 }

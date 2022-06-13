@@ -30,8 +30,15 @@ var rootCmd = &cobra.Command{
 		return app.LoadConfigFromFile(configFile, &config, &runtimeConfig)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		caller := app.NewCaller(&runtimeConfig)
-		caller.Run()
+		caller := app.Caller{Config: &config}
+
+		caller.InitCaller(&runtimeConfig)
+		err := caller.Run()
+		if err != nil {
+			panic(err)
+		}
+
+		return
 	},
 }
 

@@ -11,6 +11,7 @@ require (
 require (
 	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/johnsiilver/getcert v0.0.0-20201005022436-57fe9706afac // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
 	golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd // indirect

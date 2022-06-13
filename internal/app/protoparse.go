@@ -41,7 +41,10 @@ func CheckProtobufMethod(fileDesc *desc.FileDescriptor, methodName string) (*des
 
 	// Then, find the corresponding (service) descriptor
 	dsc := fileDesc.FindSymbol(serviceStr)
-
+	if dsc == nil {
+		return nil, helper.ErrProtobufServiceNotExist(serviceStr)
+	}
+	
 	// Then, use the service descriptor to find method
 	// Cast the generic descriptor to a service descriptor
 	serviceDes := dsc.(*desc.ServiceDescriptor)
