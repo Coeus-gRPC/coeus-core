@@ -8,6 +8,10 @@ import (
 )
 
 type CoeusRuntimeConfig struct {
+
+	// data
+	MethodData []byte
+	// methods
 	MethodDesc *desc.MethodDescriptor
 }
 
@@ -21,8 +25,8 @@ type CoeusConfig struct {
 	MessageDataFile string `json:"messageDataFile"`
 }
 
-func LoadConfigFromFile(path *string, config *CoeusConfig, runtimeConfig *CoeusRuntimeConfig) error {
-	jsonConfig, err := os.ReadFile(*path)
+func LoadConfigFromFile(path string, config *CoeusConfig, runtimeConfig *CoeusRuntimeConfig) error {
+	jsonConfig, err := os.ReadFile(path)
 	if err != nil {
 		return helper.ErrConfigLoadFailed(path)
 	}
@@ -44,6 +48,13 @@ func LoadConfigFromFile(path *string, config *CoeusConfig, runtimeConfig *CoeusR
 		return helper.ErrProtobufMethodNotExist(methodName)
 	}
 
+	dataFile := config.MessageDataFile
+	messageDataByte, err := os.ReadFile(dataFile)
+	if err != nil {
+		return helper.ErrDataFileLoadFailed(dataFile)
+	}
+
+	runtimeConfig.MethodData = messageDataByte
 	runtimeConfig.MethodDesc = methodDes
 
 	return nil

@@ -27,7 +27,7 @@ var rootCmd = &cobra.Command{
 	Short:   "Coeus is a commandline tool to help you benchmark gRPC methods",
 	Example: "coeus --config ./testdata/testconfig.json",
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		return app.LoadConfigFromFile(&configFile, &config, &runtimeConfig)
+		return app.LoadConfigFromFile(configFile, &config, &runtimeConfig)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		caller := app.NewCaller(&runtimeConfig)

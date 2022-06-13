@@ -1,32 +1,49 @@
 package app
 
 import (
+	"Coeus/internal/helper"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/jhump/protoreflect/dynamic/grpcdynamic"
 	"google.golang.org/grpc"
+	"os"
 )
 
 type Caller struct {
+	Config *CoeusRuntimeConfig
 	// In future version, we should support concurrency, thus we may need more than one stub
-	stubs  grpcdynamic.Stub
-	method *desc.MethodDescriptor
+	Stubs  grpcdynamic.Stub
+	Method *desc.MethodDescriptor
+}
+
+func newMessageFromData(runtimeConfig *CoeusRuntimeConfig) (*dynamic.Message, error) {
+	msgDesc := runtimeConfig.MethodDesc.GetInputType()
+
+	dynamicMsg := dynamic.NewMessage(msgDesc) //msgFactory.NewMessage(msgDesc)
+	err := dynamicMsg.UnmarshalJSON(runtimeConfig.MethodData)
+	if err != nil {
+		return &dynamic.Message{}, helper.ErrFailedToParseData
+	}
+
+	return dynamicMsg, nil
 }
 
 func NewCaller(runtimeConfig *CoeusRuntimeConfig) *Caller {
 	c := &Caller{
-		stubs:  grpcdynamic.NewStub(&grpc.ClientConn{}),
-		method: runtimeConfig.MethodDesc,
+		Config: runtimeConfig,
+		Stubs:  grpcdynamic.NewStub(&grpc.ClientConn{}),
+		Method: runtimeConfig.MethodDesc,
 	}
-
-	// methodInputs are essentially messages
-	methodInputs := c.method.GetInputType()
-
-	dynamic.NewMessage(methodInputs)
 
 	return c
 }
 
-func (*Caller) Run() {
+func (c *Caller) Run() {
+	_, err := newMessageFromData(c.Config)
+	if err != nil {
+		println(err)
+		os.Exit(1)
+	}
+
 	println("Caller running!")
 }
