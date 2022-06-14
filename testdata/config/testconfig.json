@@ -1,0 +1,9 @@
+{
+  "totalCallNum": 1,
+  "concurrent": 1,
+  "targetHost": "api.coeustool.dev:443",
+  "insecure": false,
+  "protoFile": "./testdata/proto/greeter.proto",
+  "methodName": "greeterservice.Greeter.SayHello",
+  "messageDataFile": "./testdata/message/messageData.json"
+}

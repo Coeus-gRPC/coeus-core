@@ -35,20 +35,17 @@ func newMessageFromData(runtimeConfig *CoeusRuntimeConfig) (*dynamic.Message, er
 
 func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) {
 	var opts []grpc.DialOption
-	println("initing caller")
 
 	if c.Config.Insecure {
-		println("insecure!")
 		opts = append(opts, grpc.WithInsecure())
 	} else {
-		println("secure!")
 		// TODO: Current implementation does not use an actual tsl cert, it retrieve TLS cert from destination server
 		tlsCert, _, _ := getcert.FromTLSServer(c.Config.TargetHost, true)
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewServerTLSFromCert(&tlsCert)))
 	}
 
 	conn, err := grpc.Dial(c.Config.TargetHost, opts...)
-	println("Connection success")
+
 	if err != nil {
 		panic(err)
 	}
@@ -59,12 +56,6 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) {
 }
 
 func (c *Caller) SendRequest(input *dynamic.Message) error {
-	println("sending request")
-	//conn, err := grpc.Dial(c.Config.TargetHost, opts...)
-	//if err != nil {
-	//	panic(err)
-	//}
-
 	resp, err := c.Stubs.InvokeRpc(context.Background(), c.Method, input)
 	if err != nil {
 		panic(err)

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "github.com/CoeusGRPC/CoeusSampleServer";
+
+package greeterservice;
+
+service Greeter {
+  // Unary RPCs example
+  rpc SayHello (HelloRequest) returns (HelloResponse) {}
+  // Server streaming RPCs example
+  rpc LotsOfReplies(HelloRequest) returns (stream HelloResponse) {}
+  // Client streaming RPCs example
+  rpc LotsOfGreetings(stream HelloRequest) returns (HelloResponse) {}
+  // Bidirectional streaming RPCs example
+  rpc BidiHello(stream HelloRequest) returns (stream HelloResponse) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloResponse {
+  string reply = 1;
+}

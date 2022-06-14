@@ -1,9 +1,0 @@
-{
-  "totalCallNum": 10,
-  "concurrent": 2,
-  "targetHost": "localhost:8080",
-  "insecure": true,
-  "protoFile": "./testdata/greeter.proto",
-  "methodName": "greeterservice.Greeter.SayHello",
-  "messageDataFile": "./testdata/messageData.json"
-}
