@@ -2,7 +2,7 @@ package app
 
 import "testing"
 
-var testProtoBufFilePath = "../../testdata/proto/greeter.proto"
+var testProtoBufFilePath = "./testdata/proto/greeter.proto"
 
 // TestEmptyProtobufFile calls greetings.Hello with an empty string,
 // checking for an error.

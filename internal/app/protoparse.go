@@ -1,8 +1,9 @@
 package app
 
 import (
-	"Coeus/internal/helper"
 	"strings"
+
+	"github.com/Coeus-gRPC/coeus-core/internal/helper"
 
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/protoparse"
@@ -49,10 +50,6 @@ func CheckProtobufMethod(fileDesc *desc.FileDescriptor, methodName string) (*des
 
 // parseMethodName parses the full method name into Package+Service and Method Name
 // Valid inputs:
-// package.Service.Method
-//   .package.Service.Method
-//   package.Service/Method
-//   .package.Service/Method
 // packageName.ServiceName.MethodName
 // packageName.ServiceName/MethodName
 func parseMethodName(fullMethodName string) (string, string, error) {

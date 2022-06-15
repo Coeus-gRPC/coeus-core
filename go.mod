@@ -1,4 +1,4 @@
-module Coeus
+module github.com/Coeus-gRPC/coeus-core
 
 go 1.18
 

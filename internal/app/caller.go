@@ -1,15 +1,16 @@
 package app
 
 import (
-	"Coeus/internal/helper"
 	"context"
+	"os"
+
+	"github.com/Coeus-gRPC/coeus-core/internal/helper"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/jhump/protoreflect/dynamic/grpcdynamic"
 	"github.com/johnsiilver/getcert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"os"
 )
 
 type Caller struct {

@@ -3,9 +3,10 @@
 package coeus
 
 import (
-	"Coeus/internal/app"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/Coeus-gRPC/coeus-core/internal/app"
+	"github.com/spf13/cobra"
 )
 
 var (

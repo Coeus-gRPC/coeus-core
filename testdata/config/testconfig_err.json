@@ -1,7 +1,7 @@
 {
   "totalCallNum": 10,
   "targett": "localhost:8080",
-  "inscure": 234,
+  "inscure": 234",
   "protoFile": "./greeter.proto",
   "methodName": "DemoService.Greeter.SayHello"
 }

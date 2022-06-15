@@ -2,7 +2,7 @@
 
 package main
 
-import "Coeus/cmd/coeus"
+import "github.com/Coeus-gRPC/coeus-core/cmd/coeus"
 
 func main() {
 	coeus.Execute()

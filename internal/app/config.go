@@ -1,10 +1,12 @@
 package app
 
 import (
-	"Coeus/internal/helper"
 	"encoding/json"
-	"github.com/jhump/protoreflect/desc"
 	"os"
+
+	"github.com/Coeus-gRPC/coeus-core/internal/helper"
+
+	"github.com/jhump/protoreflect/desc"
 )
 
 type CoeusRuntimeConfig struct {
