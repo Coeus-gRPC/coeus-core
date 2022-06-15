@@ -71,9 +71,6 @@ func parseMethodName(fullMethodName string) (string, string, error) {
 	}
 
 	pos := strings.LastIndex(fullMethodName, delimiter)
-	if pos == -1 {
-		return "", "", helper.ErrInvalidProtobufMethodName
-	}
 
 	return fullMethodName[:pos], fullMethodName[pos+1:], nil
 }
