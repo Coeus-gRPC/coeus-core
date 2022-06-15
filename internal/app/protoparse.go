@@ -2,9 +2,10 @@ package app
 
 import (
 	"Coeus/internal/helper"
+	"strings"
+
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/protoparse"
-	"strings"
 )
 
 func ParseProtobufFile(path string) (*desc.FileDescriptor, error) {
@@ -12,20 +13,9 @@ func ParseProtobufFile(path string) (*desc.FileDescriptor, error) {
 		return nil, helper.ErrProtobufParseFailed(path)
 	}
 
-	//resolvedPath, err := protoparse.ResolveFilenames([]string{}, path)
-	//if err != nil {
-	//	return err
-	//}
-	//println(resolvedPath[0])
-
 	parser := protoparse.Parser{}
 	fileDesc, err := parser.ParseFiles(path)
 	if err != nil {
-		return nil, helper.ErrProtobufParseFailed(path)
-	}
-
-	// fileDesc should have exactly 1 item, since we only pass in one protobuf file location
-	if len(fileDesc) != 1 {
 		return nil, helper.ErrProtobufParseFailed(path)
 	}
 
@@ -44,7 +34,7 @@ func CheckProtobufMethod(fileDesc *desc.FileDescriptor, methodName string) (*des
 	if dsc == nil {
 		return nil, helper.ErrProtobufServiceNotExist(serviceStr)
 	}
-	
+
 	// Then, use the service descriptor to find method
 	// Cast the generic descriptor to a service descriptor
 	serviceDes := dsc.(*desc.ServiceDescriptor)
@@ -59,8 +49,12 @@ func CheckProtobufMethod(fileDesc *desc.FileDescriptor, methodName string) (*des
 
 // parseMethodName parses the full method name into Package+Service and Method Name
 // Valid inputs:
+// package.Service.Method
+//   .package.Service.Method
+//   package.Service/Method
+//   .package.Service/Method
 // packageName.ServiceName.MethodName
-// packageName/ServiceName/MethodName
+// packageName.ServiceName/MethodName
 func parseMethodName(fullMethodName string) (string, string, error) {
 	if len(fullMethodName) == 0 {
 		return "", "", helper.ErrProtobufMethodIsEmpty
@@ -68,17 +62,15 @@ func parseMethodName(fullMethodName string) (string, string, error) {
 
 	var delimiter string
 
-	if strings.Count(fullMethodName, "/") == 2 {
-		delimiter = "/"
-	} else if strings.Count(fullMethodName, ".") == 2 {
+	if strings.Count(fullMethodName, ".") == 2 {
 		delimiter = "."
+	} else if strings.Count(fullMethodName, ".") == 1 && strings.Count(fullMethodName, "/") == 1 {
+		delimiter = "/"
 	} else {
 		return "", "", helper.ErrInvalidProtobufMethodName
 	}
 
 	pos := strings.LastIndex(fullMethodName, delimiter)
-	// delimiter not presented, in theory it should not happen,
-	// but I covered it anyway
 	if pos == -1 {
 		return "", "", helper.ErrInvalidProtobufMethodName
 	}
