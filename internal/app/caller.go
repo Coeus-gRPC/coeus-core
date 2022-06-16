@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"os"
 	"time"
 
 	"github.com/Coeus-gRPC/coeus-core/internal/helper"
@@ -72,7 +71,7 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 func (c *Caller) SendRequest(input *dynamic.Message) error {
 	resp, err := c.Stubs.InvokeRpc(context.Background(), c.Method, input)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	println(resp.String())
@@ -83,14 +82,12 @@ func (c *Caller) SendRequest(input *dynamic.Message) error {
 func (c *Caller) Run() error {
 	input, err := newMessageFromData(c.RuntimeConfig)
 	if err != nil {
-		println(err)
-		os.Exit(1)
+		return err
 	}
 
 	err = c.SendRequest(input)
 	if err != nil {
-		println(err)
-		os.Exit(1)
+		return err
 	}
 
 	return nil

@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+var testIncorrectDataContentFileConfig = "./test/testdata/config/testconfig_err_data_content.json"
+
 func generateCorrectConfig(config *CoeusConfig, runtimeConfig *CoeusRuntimeConfig) {
 	LoadConfigFromFile(testCorrectConfigFile, config, runtimeConfig)
 }
@@ -98,7 +100,7 @@ func TestFailedInit(t *testing.T) {
 	}
 }
 
-func TestSuccessfulRun(t *testing.T) {
+func TestSuccessfulCallerRun(t *testing.T) {
 	config := CoeusConfig{}
 	runtimeConfig := CoeusRuntimeConfig{}
 	generateCorrectConfig(&config, &runtimeConfig)
@@ -114,17 +116,50 @@ func TestSuccessfulRun(t *testing.T) {
 	_ = caller.InitCaller(&runtimeConfig)
 	err := caller.Run()
 	if err != nil {
-		t.Errorf(`TestSuccessfulRun should not fail when correct configs are provided`)
+		t.Errorf(`TestSuccessfulCallerRun should not fail when correct configs are provided`)
 	}
 }
 
-// func TesFailedRun(t *testing.T) {
-// 	// config := &CoeusConfig{}
-// 	// runtimeConfig := &CoeusRuntimeConfig{}
+func TestFailedRunDueToData(t *testing.T) {
+	config := CoeusConfig{}
+	runtimeConfig := CoeusRuntimeConfig{}
+	// Use malformed data file
+	LoadConfigFromFile(testIncorrectDataContentFileConfig, &config, &runtimeConfig)
 
-// 	// err := LoadConfigFromFile(testCorrectConfigFile, config, runtimeConfig)
-// 	// if err != nil {
-// 	// 	println(err.Error())
-// 	// 	t.Errorf(`TestCorrectConfigFile should not return error when correct config file path is provided`)
-// 	// }
-// }
+	caller := Caller{Config: &config}
+
+	service, host := DummyServerRun()
+	defer service.Stop()
+
+	caller.Config.Timeout = -1
+	caller.Config.TargetHost = host
+
+	_ = caller.InitCaller(&runtimeConfig)
+
+	err := caller.Run()
+	if err == nil {
+		t.Errorf(`TestFailedRunDueToData should fail when incorrect data is provided`)
+	}
+}
+
+func TestFailedRunDueToDest(t *testing.T) {
+	config := CoeusConfig{}
+	runtimeConfig := CoeusRuntimeConfig{}
+	generateCorrectConfig(&config, &runtimeConfig)
+	caller := Caller{Config: &config}
+
+	service, host := DummyServerRun()
+
+	caller.Config.Insecure = true
+	caller.Config.Timeout = 100
+	caller.Config.TargetHost = host
+
+	_ = caller.InitCaller(&runtimeConfig)
+	// Stop the server right after a successful dialing
+	service.Stop()
+
+	err := caller.Run()
+	if err == nil {
+		t.Errorf(`TestFailedRunDueToDest should fail when destination is unavaiable`)
+	}
+}
