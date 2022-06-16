@@ -40,6 +40,8 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 	var ctx context.Context
 	var cancel context.CancelFunc
 
+	opts = append(opts, grpc.WithReturnConnectionError())
+
 	if c.Config.Insecure {
 		opts = append(opts, grpc.WithInsecure())
 	} else {
@@ -47,8 +49,6 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 		tlsCert, _, _ := getcert.FromTLSServer(c.Config.TargetHost, true)
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewServerTLSFromCert(&tlsCert)))
 	}
-
-	println("Dialing ", c.Config.TargetHost)
 
 	if c.Config.Timeout != -1 {
 		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(c.Config.Timeout)*time.Millisecond)
