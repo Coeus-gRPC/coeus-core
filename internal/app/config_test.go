@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	_ "github.com/Coeus-gRPC/coeus-core/test"
-	// "testing"
 )
 
 var testCorrectConfigFile = "./test/testdata/config/testconfig.json"
@@ -52,5 +51,4 @@ func TestLoadWrongConfigFile(t *testing.T) {
 	if wrongDataErr == nil {
 		t.Errorf(`tLoadWrongConfigFile should return error when incorrect data file is presented in config file`)
 	}
-
 }

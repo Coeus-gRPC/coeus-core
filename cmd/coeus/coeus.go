@@ -11,7 +11,7 @@ import (
 
 var (
 	configFile    string
-	config        = app.CoeusConfig{TotalCallNum: 1, Concurrent: 1, Insecure: false, TargetHost: "api.coeustool.dev:443"}
+	config        = app.CoeusConfig{TotalCallNum: 1, Concurrent: 1, Insecure: false, Timeout: -1, TargetHost: "api.coeustool.dev:443"}
 	runtimeConfig = app.CoeusRuntimeConfig{}
 )
 
@@ -33,8 +33,12 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		caller := app.Caller{Config: &config}
 
-		caller.InitCaller(&runtimeConfig)
-		err := caller.Run()
+		err := caller.InitCaller(&runtimeConfig)
+		if err != nil {
+			panic(err)
+		}
+
+		err = caller.Run()
 		if err != nil {
 			panic(err)
 		}

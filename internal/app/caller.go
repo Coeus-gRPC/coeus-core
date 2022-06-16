@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"os"
+	"time"
 
 	"github.com/Coeus-gRPC/coeus-core/internal/helper"
 	"github.com/jhump/protoreflect/desc"
@@ -34,8 +35,10 @@ func newMessageFromData(runtimeConfig *CoeusRuntimeConfig) (*dynamic.Message, er
 	return dynamicMsg, nil
 }
 
-func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) {
+func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 	var opts []grpc.DialOption
+	var ctx context.Context
+	var cancel context.CancelFunc
 
 	if c.Config.Insecure {
 		opts = append(opts, grpc.WithInsecure())
@@ -45,15 +48,25 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) {
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewServerTLSFromCert(&tlsCert)))
 	}
 
-	conn, err := grpc.Dial(c.Config.TargetHost, opts...)
+	println("Dialing ", c.Config.TargetHost)
 
+	if c.Config.Timeout != -1 {
+		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(c.Config.Timeout)*time.Millisecond)
+		defer cancel()
+	} else {
+		ctx = context.Background()
+	}
+
+	conn, err := grpc.DialContext(ctx, c.Config.TargetHost, opts...)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	c.RuntimeConfig = runtimeConfig
 	c.Stubs = grpcdynamic.NewStub(conn)
 	c.Method = runtimeConfig.MethodDesc
+
+	return nil
 }
 
 func (c *Caller) SendRequest(input *dynamic.Message) error {

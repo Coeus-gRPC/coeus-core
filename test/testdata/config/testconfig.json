@@ -3,6 +3,7 @@
   "concurrent": 1,
   "targetHost": "api.coeustool.dev:443",
   "insecure": false,
+  "timeout": 3000, 
   "protoFile": "./test/testdata/proto/greeter.proto",
   "methodName": "greeterservice.Greeter.SayHello",
   "messageDataFile": "./test/testdata/message/messageData.json"

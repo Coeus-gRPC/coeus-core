@@ -22,6 +22,7 @@ type CoeusConfig struct {
 	Concurrent      int    `json:"concurrent"`
 	TargetHost      string `json:"targetHost"`
 	Insecure        bool   `json:"insecure"`
+	Timeout         int    `json:"timeout"`
 	ProtoFile       string `json:"protoFile"`
 	MethodName      string `json:"methodName"`
 	MessageDataFile string `json:"messageDataFile"`
