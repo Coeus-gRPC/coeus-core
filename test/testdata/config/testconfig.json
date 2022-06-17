@@ -1,5 +1,5 @@
 {
-  "totalCallNum": 1,
+  "totalCallNum": 5,
   "concurrent": 1,
   "targetHost": "api.coeustool.dev:443",
   "insecure": false,

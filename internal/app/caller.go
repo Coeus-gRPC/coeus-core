@@ -70,12 +70,17 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 }
 
 func (c *Caller) SendRequest(input *dynamic.Message) error {
-	resp, err := c.Stubs.InvokeRpc(context.Background(), c.Method, input)
-	if err != nil {
-		return err
+	var i uint
+	for i = 0; i < c.Config.TotalCallNum; i++ {
+		resp, err := c.Stubs.InvokeRpc(context.Background(), c.Method, input)
+		if err != nil {
+			return err
+		}
+
+		println(resp.String())
 	}
 
-	println(resp.String())
+	//println(resp.String())
 
 	return nil
 }
