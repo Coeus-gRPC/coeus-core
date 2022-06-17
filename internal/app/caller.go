@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/Coeus-gRPC/coeus-core/internal/helper"
@@ -80,6 +81,8 @@ func (c *Caller) SendRequest(input *dynamic.Message) error {
 }
 
 func (c *Caller) Run() error {
+	start := time.Now()
+
 	input, err := newMessageFromData(c.RuntimeConfig)
 	if err != nil {
 		return err
@@ -89,6 +92,9 @@ func (c *Caller) Run() error {
 	if err != nil {
 		return err
 	}
+
+	total := time.Since(start)
+	fmt.Printf("This call cost a total of %.3f ms.\n", float32(total.Microseconds()/1000))
 
 	return nil
 }
