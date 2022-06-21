@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/Coeus-gRPC/coeus-core/internal/helper"
@@ -19,8 +20,9 @@ type Caller struct {
 	Config        *CoeusConfig
 	RuntimeConfig *CoeusRuntimeConfig
 	// In future version, we should support concurrency, thus we may need more than one stub
-	Stubs  grpcdynamic.Stub
-	Method *desc.MethodDescriptor
+	Connections []*grpc.ClientConn
+	Stubs       []grpcdynamic.Stub
+	Method      *desc.MethodDescriptor
 }
 
 func newMessageFromData(runtimeConfig *CoeusRuntimeConfig) (*dynamic.Message, error) {
@@ -57,30 +59,52 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 		ctx = context.Background()
 	}
 
-	conn, err := grpc.DialContext(ctx, c.Config.TargetHost, opts...)
-	if err != nil {
-		return err
+	for i := 0; i < c.Config.Concurrent; i++ {
+		conn, err := grpc.DialContext(ctx, c.Config.TargetHost, opts...)
+		if err != nil {
+			return err
+		}
+
+		c.Stubs = append(c.Stubs, grpcdynamic.NewStub(conn))
+		c.Connections = append(c.Connections, conn)
 	}
 
 	c.RuntimeConfig = runtimeConfig
-	c.Stubs = grpcdynamic.NewStub(conn)
 	c.Method = runtimeConfig.MethodDesc
 
 	return nil
 }
 
-func (c *Caller) SendRequest(input *dynamic.Message) error {
+func (c *Caller) sendRequest(limiter chan bool, input *dynamic.Message, wg *sync.WaitGroup, count uint) {
+	limiter <- true
+
+	stubCount := int(count) % c.Config.Concurrent
+	fmt.Printf("Using Stub Num: %d\n", stubCount)
+
+	resp, _ := c.Stubs[stubCount].InvokeRpc(context.Background(), c.Method, input)
+	//if err != nil {
+	//	return err
+	//}
+
+	println(resp.String())
+
+	defer func() {
+		<-limiter
+		wg.Done()
+	}()
+}
+
+func (c *Caller) SendRequests(input *dynamic.Message) error {
 	var i uint
+	ch := make(chan bool, c.Config.Concurrent)
+	wg := &sync.WaitGroup{}
+	println()
+
 	for i = 0; i < c.Config.TotalCallNum; i++ {
-		resp, err := c.Stubs.InvokeRpc(context.Background(), c.Method, input)
-		if err != nil {
-			return err
-		}
-
-		println(resp.String())
+		wg.Add(1)
+		go c.sendRequest(ch, input, wg, i)
 	}
-
-	//println(resp.String())
+	wg.Wait()
 
 	return nil
 }
@@ -93,13 +117,13 @@ func (c *Caller) Run() error {
 		return err
 	}
 
-	err = c.SendRequest(input)
+	err = c.SendRequests(input)
 	if err != nil {
 		return err
 	}
 
 	total := time.Since(start)
-	fmt.Printf("This call cost a total of %.3f ms.\n", float32(total.Microseconds()/1000))
+	fmt.Printf("This call cost a total of %d ms.\n", total.Milliseconds())
 
 	return nil
 }
