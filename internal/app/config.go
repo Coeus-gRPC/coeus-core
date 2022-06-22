@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"github.com/jhump/protoreflect/dynamic"
 	"os"
 
 	"github.com/Coeus-gRPC/coeus-core/internal/helper"
@@ -12,7 +13,8 @@ import (
 type CoeusRuntimeConfig struct {
 
 	// data
-	MethodData []byte
+	//MethodData    []byte
+	MethodMessage *dynamic.Message
 	// methods
 	MethodDesc *desc.MethodDescriptor
 }
@@ -26,6 +28,18 @@ type CoeusConfig struct {
 	ProtoFile       string `json:"protoFile"`
 	MethodName      string `json:"methodName"`
 	MessageDataFile string `json:"messageDataFile"`
+}
+
+func NewMessageFromData(methodDes *desc.MethodDescriptor, messageData []byte) (*dynamic.Message, error) {
+	msgDesc := methodDes.GetInputType()
+
+	dynamicMsg := dynamic.NewMessage(msgDesc) //msgFactory.NewMessage(msgDesc)
+	err := dynamicMsg.UnmarshalJSON(messageData)
+	if err != nil {
+		return &dynamic.Message{}, helper.ErrFailedToParseData
+	}
+
+	return dynamicMsg, nil
 }
 
 func LoadConfigFromFile(path string, config *CoeusConfig, runtimeConfig *CoeusRuntimeConfig) error {
@@ -57,7 +71,12 @@ func LoadConfigFromFile(path string, config *CoeusConfig, runtimeConfig *CoeusRu
 		return helper.ErrDataFileLoadFailed(dataFile)
 	}
 
-	runtimeConfig.MethodData = messageDataByte
+	methodMessage, err := NewMessageFromData(methodDes, messageDataByte)
+	if err != nil {
+		return helper.ErrFailedToGenerateProtobufMessage(methodDes.String())
+	}
+
+	runtimeConfig.MethodMessage = methodMessage
 	runtimeConfig.MethodDesc = methodDes
 
 	return nil

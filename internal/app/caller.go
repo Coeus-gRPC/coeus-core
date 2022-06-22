@@ -6,8 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Coeus-gRPC/coeus-core/internal/helper"
-	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/jhump/protoreflect/dynamic/grpcdynamic"
 	"github.com/johnsiilver/getcert"
@@ -22,19 +20,6 @@ type Caller struct {
 	// In future version, we should support concurrency, thus we may need more than one stub
 	Connections []*grpc.ClientConn
 	Stubs       []grpcdynamic.Stub
-	Method      *desc.MethodDescriptor
-}
-
-func newMessageFromData(runtimeConfig *CoeusRuntimeConfig) (*dynamic.Message, error) {
-	msgDesc := runtimeConfig.MethodDesc.GetInputType()
-
-	dynamicMsg := dynamic.NewMessage(msgDesc) //msgFactory.NewMessage(msgDesc)
-	err := dynamicMsg.UnmarshalJSON(runtimeConfig.MethodData)
-	if err != nil {
-		return &dynamic.Message{}, helper.ErrFailedToParseData
-	}
-
-	return dynamicMsg, nil
 }
 
 func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
@@ -70,7 +55,6 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 	}
 
 	c.RuntimeConfig = runtimeConfig
-	c.Method = runtimeConfig.MethodDesc
 
 	return nil
 }
@@ -81,7 +65,7 @@ func (c *Caller) sendRequest(limiter chan bool, input *dynamic.Message, wg *sync
 	stubCount := int(count) % c.Config.Concurrent
 	fmt.Printf("Using Stub Num: %d\n", stubCount)
 
-	resp, _ := c.Stubs[stubCount].InvokeRpc(context.Background(), c.Method, input)
+	resp, _ := c.Stubs[stubCount].InvokeRpc(context.Background(), c.RuntimeConfig.MethodDesc, input)
 	//if err != nil {
 	//	return err
 	//}
@@ -112,12 +96,7 @@ func (c *Caller) SendRequests(input *dynamic.Message) error {
 func (c *Caller) Run() error {
 	start := time.Now()
 
-	input, err := newMessageFromData(c.RuntimeConfig)
-	if err != nil {
-		return err
-	}
-
-	err = c.SendRequests(input)
+	err := c.SendRequests(c.RuntimeConfig.MethodMessage)
 	if err != nil {
 		return err
 	}

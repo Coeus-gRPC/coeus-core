@@ -47,4 +47,8 @@ func ErrDataFileLoadFailed(fileName string) error {
 	}
 }
 
+func ErrFailedToGenerateProtobufMessage(methodName string) error {
+	return errors.New(fmt.Sprintf("failed to generate protocol buffer message: %s from json data", methodName))
+}
+
 var ErrFailedToParseData = errors.New("failed to parse call data, please check data json file")
