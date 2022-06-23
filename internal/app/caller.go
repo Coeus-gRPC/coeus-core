@@ -59,47 +59,64 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 	return nil
 }
 
-func (c *Caller) sendRequest(limiter chan bool, input *dynamic.Message, wg *sync.WaitGroup, count uint) {
+func (c *Caller) consumeLatencyChannel(latencies chan time.Duration) *[]time.Duration {
+	var latencySlice []time.Duration
+	var i uint = 0
+
+	for i < c.Config.TotalCallNum {
+		latencySlice = append(latencySlice, <-latencies)
+		i++
+	}
+
+	return &latencySlice
+}
+
+func (c *Caller) sendRequest(limiter chan bool, latencies chan time.Duration, input *dynamic.Message, wg *sync.WaitGroup, count uint) {
 	limiter <- true
 
 	stubCount := int(count) % c.Config.Concurrent
-	fmt.Printf("Using Stub Num: %d\n", stubCount)
 
+	start := time.Now()
 	resp, _ := c.Stubs[stubCount].InvokeRpc(context.Background(), c.RuntimeConfig.MethodDesc, input)
 	//if err != nil {
 	//	return err
 	//}
 
+	elapsed := time.Since(start)
+
 	println(resp.String())
 
 	defer func() {
+		latencies <- elapsed
 		<-limiter
 		wg.Done()
 	}()
 }
 
-func (c *Caller) SendRequests(input *dynamic.Message) error {
+func (c *Caller) SendRequests(input *dynamic.Message) *[]time.Duration {
 	var i uint
 	ch := make(chan bool, c.Config.Concurrent)
 	wg := &sync.WaitGroup{}
-	println()
+	latencies := make(chan time.Duration, c.Config.TotalCallNum)
 
 	for i = 0; i < c.Config.TotalCallNum; i++ {
 		wg.Add(1)
-		go c.sendRequest(ch, input, wg, i)
+		i := i
+		go c.sendRequest(ch, latencies, input, wg, i)
 	}
 	wg.Wait()
 
-	return nil
+	latencySlice := c.consumeLatencyChannel(latencies)
+
+	return latencySlice
 }
 
 func (c *Caller) Run() error {
 	start := time.Now()
 
-	err := c.SendRequests(c.RuntimeConfig.MethodMessage)
-	if err != nil {
-		return err
-	}
+	latencies := c.SendRequests(c.RuntimeConfig.MethodMessage)
+
+	fmt.Printf("Latencies: %v\n", latencies)
 
 	total := time.Since(start)
 	fmt.Printf("This call cost a total of %d ms.\n", total.Milliseconds())

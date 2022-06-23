@@ -11,9 +11,7 @@ import (
 )
 
 type CoeusRuntimeConfig struct {
-
 	// data
-	//MethodData    []byte
 	MethodMessage *dynamic.Message
 	// methods
 	MethodDesc *desc.MethodDescriptor
