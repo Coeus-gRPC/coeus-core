@@ -3,14 +3,15 @@ package app
 import (
 	"context"
 	"fmt"
-	"sync"
-	"time"
-
+	"github.com/Coeus-gRPC/coeus-core/internal/report"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/jhump/protoreflect/dynamic/grpcdynamic"
 	"github.com/johnsiilver/getcert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
+	"sync"
+	"time"
 )
 
 type Caller struct {
@@ -59,64 +60,61 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 	return nil
 }
 
-func (c *Caller) consumeLatencyChannel(latencies chan time.Duration) *[]time.Duration {
-	var latencySlice []time.Duration
-	var i uint = 0
+func (c *Caller) consumeReporterChannel(reporters chan report.Reporter) *[]report.Reporter {
+	var reporterSlice []report.Reporter
 
-	for i < c.Config.TotalCallNum {
-		latencySlice = append(latencySlice, <-latencies)
-		i++
+	for i := 0; i < c.Config.TotalCallNum; i++ {
+		reporterSlice = append(reporterSlice, <-reporters)
 	}
 
-	return &latencySlice
+	return &reporterSlice
 }
 
-func (c *Caller) sendRequest(limiter chan bool, latencies chan time.Duration, input *dynamic.Message, wg *sync.WaitGroup, count uint) {
+func (c *Caller) sendRequest(limiter chan bool, reporters chan report.Reporter, input *dynamic.Message, wg *sync.WaitGroup, count int) {
 	limiter <- true
-
-	stubCount := int(count) % c.Config.Concurrent
+	stubCount := count % c.Config.Concurrent
+	reporter := report.NewReporter()
 
 	start := time.Now()
-	resp, _ := c.Stubs[stubCount].InvokeRpc(context.Background(), c.RuntimeConfig.MethodDesc, input)
-	//if err != nil {
-	//	return err
-	//}
+	resp, err := c.Stubs[stubCount].InvokeRpc(context.Background(), c.RuntimeConfig.MethodDesc, input)
 
 	elapsed := time.Since(start)
 
-	println(resp.String())
+	reporter.TimeConsumption = float64(elapsed.Microseconds()) / 1000
+	reporter.StatusStr = status.Code(err).String()
+	reporter.ReturnStr = resp.String()
 
 	defer func() {
-		latencies <- elapsed
+		reporters <- reporter
 		<-limiter
 		wg.Done()
 	}()
 }
 
-func (c *Caller) SendRequests(input *dynamic.Message) *[]time.Duration {
-	var i uint
+func (c *Caller) SendRequests(input *dynamic.Message) *[]report.Reporter {
 	ch := make(chan bool, c.Config.Concurrent)
 	wg := &sync.WaitGroup{}
-	latencies := make(chan time.Duration, c.Config.TotalCallNum)
 
-	for i = 0; i < c.Config.TotalCallNum; i++ {
+	reporters := make(chan report.Reporter, c.Config.TotalCallNum)
+
+	for i := 0; i < c.Config.TotalCallNum; i++ {
 		wg.Add(1)
 		i := i
-		go c.sendRequest(ch, latencies, input, wg, i)
+		go c.sendRequest(ch, reporters, input, wg, i)
 	}
 	wg.Wait()
 
-	latencySlice := c.consumeLatencyChannel(latencies)
+	reporterSlice := c.consumeReporterChannel(reporters)
 
-	return latencySlice
+	return reporterSlice
 }
 
 func (c *Caller) Run() error {
 	start := time.Now()
 
-	latencies := c.SendRequests(c.RuntimeConfig.MethodMessage)
+	reports := c.SendRequests(c.RuntimeConfig.MethodMessage)
 
-	fmt.Printf("Latencies: %v\n", latencies)
+	fmt.Printf("Latencies: %v\n", reports)
 
 	total := time.Since(start)
 	fmt.Printf("This call cost a total of %d ms.\n", total.Milliseconds())

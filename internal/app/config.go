@@ -18,7 +18,7 @@ type CoeusRuntimeConfig struct {
 }
 
 type CoeusConfig struct {
-	TotalCallNum    uint   `json:"totalCallNum"`
+	TotalCallNum    int    `json:"totalCallNum"`
 	Concurrent      int    `json:"concurrent"`
 	TargetHost      string `json:"targetHost"`
 	Insecure        bool   `json:"insecure"`

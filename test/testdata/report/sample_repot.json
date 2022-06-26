@@ -1,0 +1,10 @@
+{
+  "totalCallNum":100,
+  "successCallCount": 99,
+  "totalTimeConsumption": 502.21,
+  "averageTimeConsumption": 50.2021,
+  "fastestTimeConsumption": 30.2,
+  "slowestTimeConsumption": 80.1,
+  "distribution": [],
+  "requestPerSecond": 200.2
+}

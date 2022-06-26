@@ -1,6 +1,6 @@
 {
-  "totalCallNum": 10,
-  "concurrent": 10,
+  "totalCallNum": 20,
+  "concurrent": 5,
   "targetHost": "api.coeustool.dev:443",
   "insecure": false,
   "timeout": 3000, 
