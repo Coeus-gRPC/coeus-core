@@ -60,14 +60,14 @@ func (c *Caller) InitCaller(runtimeConfig *CoeusRuntimeConfig) error {
 	return nil
 }
 
-func (c *Caller) consumeReporterChannel(reporters chan report.Reporter) *[]report.Reporter {
+func (c *Caller) consumeReporterChannel(reporters chan report.Reporter) []report.Reporter {
 	var reporterSlice []report.Reporter
 
 	for i := 0; i < c.Config.TotalCallNum; i++ {
 		reporterSlice = append(reporterSlice, <-reporters)
 	}
 
-	return &reporterSlice
+	return reporterSlice
 }
 
 func (c *Caller) sendRequest(limiter chan bool, reporters chan report.Reporter, input *dynamic.Message, wg *sync.WaitGroup, count int) {
@@ -91,7 +91,7 @@ func (c *Caller) sendRequest(limiter chan bool, reporters chan report.Reporter, 
 	}()
 }
 
-func (c *Caller) SendRequests(input *dynamic.Message) *[]report.Reporter {
+func (c *Caller) SendRequests(input *dynamic.Message) []report.Reporter {
 	ch := make(chan bool, c.Config.Concurrent)
 	wg := &sync.WaitGroup{}
 
@@ -114,10 +114,8 @@ func (c *Caller) Run() error {
 
 	reports := c.SendRequests(c.RuntimeConfig.MethodMessage)
 
-	fmt.Printf("Latencies: %v\n", reports)
-
-	total := time.Since(start)
-	fmt.Printf("This call cost a total of %d ms.\n", total.Milliseconds())
+	finalReport := report.GenerateReport(reports, time.Since(start), c.Config.Concurrent)
+	fmt.Printf("%v\n", finalReport)
 
 	return nil
 }
