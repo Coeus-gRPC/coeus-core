@@ -3,10 +3,11 @@
 package coeus
 
 import (
-	"os"
-
+	"fmt"
 	"github.com/Coeus-gRPC/coeus-core/internal/app"
+	"github.com/Coeus-gRPC/coeus-core/internal/report"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
@@ -38,9 +39,13 @@ var rootCmd = &cobra.Command{
 			panic(err)
 		}
 
-		err = caller.Run()
+		finalReport := caller.Run()
+
+		err = report.WriteReportToFile(finalReport, config.OutputFilePath)
 		if err != nil {
 			panic(err)
+		} else {
+			fmt.Printf("Report file has been written to: %s\n", config.OutputFilePath)
 		}
 
 		return

@@ -1,7 +1,10 @@
 package report
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
+	"io/ioutil"
 	"time"
 )
 
@@ -58,6 +61,18 @@ func GenerateReport(reporters []Reporter, totalTime time.Duration, concurrencyLe
 	report.RequestPerSecond = float64(report.TotalCallNum) / totalTime.Seconds()
 
 	return report
+}
+
+func WriteReportToFile(report Report, filePath string) error {
+	if len(filePath) == 0 {
+		fmt.Printf("Report Filepath empty. Print the report struct:\n%v", report)
+		return nil
+	}
+
+	fileData, _ := json.MarshalIndent(report, "", "  ")
+	err := ioutil.WriteFile(filePath, fileData, 0644)
+
+	return err
 }
 
 func addArray(array []float64) float64 {

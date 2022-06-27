@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"github.com/Coeus-gRPC/coeus-core/internal/report"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/jhump/protoreflect/dynamic/grpcdynamic"
@@ -109,13 +108,12 @@ func (c *Caller) SendRequests(input *dynamic.Message) []report.Reporter {
 	return reporterSlice
 }
 
-func (c *Caller) Run() error {
+func (c *Caller) Run() report.Report {
 	start := time.Now()
 
 	reports := c.SendRequests(c.RuntimeConfig.MethodMessage)
 
 	finalReport := report.GenerateReport(reports, time.Since(start), c.Config.Concurrent)
-	fmt.Printf("%v\n", finalReport)
 
-	return nil
+	return finalReport
 }

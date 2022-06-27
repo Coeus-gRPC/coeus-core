@@ -26,6 +26,7 @@ type CoeusConfig struct {
 	ProtoFile       string `json:"protoFile"`
 	MethodName      string `json:"methodName"`
 	MessageDataFile string `json:"messageDataFile"`
+	OutputFilePath  string `json:"outputFilePath"`
 }
 
 func NewMessageFromData(methodDes *desc.MethodDescriptor, messageData []byte) (*dynamic.Message, error) {

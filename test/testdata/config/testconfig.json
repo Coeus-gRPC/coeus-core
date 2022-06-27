@@ -1,10 +1,11 @@
 {
-  "totalCallNum": 20,
-  "concurrent": 5,
-  "targetHost": "api.coeustool.dev:443",
-  "insecure": false,
-  "timeout": 3000, 
+  "totalCallNum": 2000,
+  "concurrent": 50,
+  "targetHost": "127.0.0.1:8080",
+  "insecure": true,
+  "timeout": -1,
   "protoFile": "./test/testdata/proto/greeter.proto",
   "methodName": "greeterservice.Greeter.SayHello",
-  "messageDataFile": "./test/testdata/message/messageData.json"
+  "messageDataFile": "./test/testdata/message/messageData.json",
+  "outputFilePath": "./output/output.json"
 }
