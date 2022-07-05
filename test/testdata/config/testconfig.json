@@ -3,7 +3,7 @@
   "concurrent": 50,
   "targetHost": "127.0.0.1:8080",
   "insecure": true,
-  "timeout": -1,
+  "timeout": 100,
   "protoFile": "./test/testdata/proto/greeter.proto",
   "methodName": "greeterservice.Greeter.SayHello",
   "messageDataFile": "./test/testdata/message/messageData.json",
