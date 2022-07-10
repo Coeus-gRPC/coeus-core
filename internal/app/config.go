@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"github.com/jhump/protoreflect/dynamic"
 	"os"
 
@@ -18,15 +19,16 @@ type CoeusRuntimeConfig struct {
 }
 
 type CoeusConfig struct {
-	TotalCallNum    int    `json:"totalCallNum"`
-	Concurrent      int    `json:"concurrent"`
-	TargetHost      string `json:"targetHost"`
-	Insecure        bool   `json:"insecure"`
-	Timeout         int    `json:"timeout"`
-	ProtoFile       string `json:"protoFile"`
-	MethodName      string `json:"methodName"`
-	MessageDataFile string `json:"messageDataFile"`
-	OutputFilePath  string `json:"outputFilePath"`
+	ID              uuid.UUID `json:"id"`
+	TotalCallNum    int       `json:"totalCallNum"`
+	Concurrent      int       `json:"concurrent"`
+	TargetHost      string    `json:"targetHost"`
+	Insecure        bool      `json:"insecure"`
+	Timeout         int       `json:"timeout"`
+	ProtoFile       string    `json:"protoFile"`
+	MethodName      string    `json:"methodName"`
+	MessageDataFile string    `json:"messageDataFile"`
+	OutputFilePath  string    `json:"outputFilePath"`
 }
 
 func NewMessageFromData(methodDes *desc.MethodDescriptor, messageData []byte) (*dynamic.Message, error) {
@@ -44,6 +46,7 @@ func NewMessageFromData(methodDes *desc.MethodDescriptor, messageData []byte) (*
 func LoadConfigFromFile(path string, config *CoeusConfig, runtimeConfig *CoeusRuntimeConfig) error {
 	jsonConfig, err := os.ReadFile(path)
 	if err != nil {
+		println(err.Error())
 		return helper.ErrConfigLoadFailed(path)
 	}
 
