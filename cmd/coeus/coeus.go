@@ -43,7 +43,7 @@ var rootCmd = &cobra.Command{
 
 		err = report.WriteReportToFile(finalReport, config.OutputFilePath)
 		if err != nil {
-			panic(err)
+			panic(err.Error())
 		} else {
 			fmt.Printf("Report file has been written to: %s\n", config.OutputFilePath)
 		}

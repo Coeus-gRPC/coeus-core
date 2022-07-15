@@ -63,6 +63,8 @@ func GenerateReport(reporters []Reporter, totalTime time.Duration, concurrencyLe
 	report.RequestPerSecond = float64(report.TotalCallNum) / totalTime.Seconds()
 	report.Distribution = calculatePercentile(report.TimeConsumptions)
 
+	fmt.Printf("%v", report)
+
 	return report
 }
 
@@ -72,8 +74,12 @@ func WriteReportToFile(report Report, filePath string) error {
 		return nil
 	}
 
-	fileData, _ := json.MarshalIndent(report, "", "  ")
-	err := ioutil.WriteFile(filePath, fileData, 0644)
+	fileData, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(filePath, fileData, 0644)
 
 	return err
 }
@@ -109,14 +115,17 @@ func largestElement(array []float64) float64 {
 }
 
 func calculatePercentile(distribution []float64) map[string]float64 {
-	println("Calculating percentiles")
 	distributionMap := make(map[string]float64)
 	disData := stats.LoadRawData(distribution)
 	percentiles := []float64{5.0, 10.0, 25.0, 50.0, 75.0, 90.0, 95.0, 99.0}
 
 	for _, v := range percentiles {
-		println("Calculating ", v)
-		percentile, _ := stats.Percentile(disData, v)
+		fmt.Printf("Calculating %f\n", v)
+		percentile, err := stats.Percentile(disData, v)
+		if err != nil {
+			continue // to skip the NaN value, which are not encodable in a JSON file
+			println(err.Error())
+		}
 		distributionMap[strconv.Itoa(int(v))] = percentile
 	}
 
