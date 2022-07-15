@@ -11,6 +11,7 @@ import (
 )
 
 type Report struct {
+	ReportID               uuid.UUID          `json:"reportID"`
 	TotalCallNum           int                `json:"totalCallNum"`
 	SuccessCallCount       int                `json:"successCallCount"`
 	ConcurrencyLevel       int                `json:"concurrencyLevel"`
@@ -64,6 +65,9 @@ func GenerateReport(reporters []Reporter, totalTime time.Duration, concurrencyLe
 	report.Distribution = calculatePercentile(report.TimeConsumptions)
 
 	fmt.Printf("%v", report)
+
+	// A random id to identify the report.
+	report.ReportID = uuid.New()
 
 	return report
 }
