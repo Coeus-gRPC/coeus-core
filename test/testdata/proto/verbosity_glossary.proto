@@ -1,0 +1,43 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package verbosity_glossary;
+
+option go_package = "github.com/JBHua/VerbosityGlossary/grpc/glossary";
+
+service VerbosityGlossary {
+  rpc ListAllGlossaries(google.protobuf.Empty) returns (GlossaryList) {}
+  rpc CheckMissingGlossary(CurrentGlossaries) returns (GlossaryCheckResponse) {}
+  rpc ReadGlossary(SingleGlossary) returns (PreDefinedGlossary) {}
+}
+
+// Input Message Start
+message CurrentGlossaries {
+  // A list of glossaries currently exists on a specific user's device
+  repeated string glossary_name = 1;
+}
+
+message SingleGlossary {
+  string glossary_name = 1;
+  int32 count = 2;
+}
+
+// To save bandwidth, PreDefined Glossary only stores words
+message PreDefinedGlossary {
+  repeated string words = 1;
+}
+// Input Message End
+
+// GlossaryCheckResponse will tell user's device which glossary is missing
+// thus to retrieve the missing glossary (in order to save bandwidth!)
+message GlossaryCheckResponse {
+  // Whether there is any missing glossary.
+  bool is_missing = 1;
+
+  // Missing glossaries. Ignored when is_missing is false.
+  repeated string missingGlossary = 2;
+}
+
+message GlossaryList {
+  repeated SingleGlossary glossary = 1;
+}
