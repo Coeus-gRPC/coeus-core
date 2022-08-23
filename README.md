@@ -4,6 +4,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Coeus-gRPC/coeus-core)](https://goreportcard.com/report/github.com/Coeus-gRPC/coeus-core)
 [![License](https://img.shields.io/github/license/Coeus-gRPC/coeus-core)](https://raw.githubusercontent.com/Coeus-gRPC/coeus-core/LICENSE.md)
 
+[![asciicast](https://asciinema.org/a/XYV0QKDBMAISzWCoMJFZWYIbm.svg?autoplay=1)](https://asciinema.org/a/XYV0QKDBMAISzWCoMJFZWYIbm?autoplay=1)
+
 Coeus, whose name means "query" and "intelligence," is a command-line tool that focuses on [gRPC](https://grpc.io/) benchmarking and load-testing.
 
 ## Features
