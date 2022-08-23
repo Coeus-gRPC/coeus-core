@@ -1,7 +1,7 @@
 {
   "id": "01f395d4-c6e9-413f-91fb-9bd32dc7aed9",
-  "totalCallNum": 500,
-  "concurrent": 10,
+  "totalCallNum": 5,
+  "concurrent": 2,
   "targetHost": "api.coeustool.dev:443",
   "insecure": false,
   "timeout": 10000,

@@ -13,7 +13,7 @@ Coeus, whose name means "query" and "intelligence," is a command-line tool that 
 
 🔍 **Effortless Configuration** - Build your test configuration and message using JSON.
 
-🔍 **macOS Client** - Not a fan of Command-line? Don't worry! There is a [macOS App](), just like Postman.
+🔍 **macOS Client** - Not a fan of Command-line? Don't worry! There is a [macOS App](https://github.com/Coeus-gRPC/coeus-macos), just like Postman.
 
 ## Install
 
@@ -97,6 +97,11 @@ Please note: all fields are required.
   ]
 }
 ```
+
+## Future Plan
+- Add result visualization
+- Add more customizable options
+
 
 ## License
 Released under [MIT License](https://www.mit.edu/~amini/LICENSE.md)
